@@ -1,14 +1,80 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Animatable from 'react-native-animatable';
+import apiServices from '../components/apiServices';
 
 
 export default function SignupScreen() {
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPass, setConformPass] = useState('');
+  const [firstname , setFirstname] = useState('');
+  const [lastname , setLastname] = useState('');
+  const [users , setUsers] = useState([]);
+
   const router = useRouter();
+
+  const validateAndSubmit = async () => {
+    // Check for empty fields
+    if (!email || !firstname || !lastname || !password || !confirmPass) {
+      Alert.alert('Error', 'All fields are required!');
+      return false;
+    }
+  
+    // Email validation using regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Please enter a valid email address!');
+      return false;
+    }
+
+    
+     // Password length check
+     if (password.length < 6) {
+        Alert.alert('Error', 'Password must be at least 6 characters!');
+        return false;
+      }
+  
+    // Password match check
+    if (password !== confirmPass) {
+      Alert.alert('Error', 'Passwords do not match!');
+      return false;
+    }
+  
+    // If everything is fine, call registerUser
+    const isRegistered = await registerUser();
+    return isRegistered;
+  };
+  
+  const registerUser = async () => {
+    const newUser = {
+      username: email,
+      firstname: firstname,
+      lastname: lastname,
+      password: password,
+      confirmpass: confirmPass,
+    };
+  
+    try {
+      const response = await apiServices.postUserData(newUser);
+      console.log('Post User data:', response.data);
+      Alert.alert('Success', 'User registered successfully!');
+      return true;
+    } catch (error) {
+      console.error('Error posting user data:', error);
+      Alert.alert('Error', 'Failed to register user. Try again.');
+      return false;
+    }
+  };
+  
+  const handleSignUp = async () => {
+    const isValidAndRegistered = await validateAndSubmit();
+    if (isValidAndRegistered) {
+      router.replace('./tabs/home'); // Navigate only if registration succeeded
+    }
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -23,13 +89,6 @@ export default function SignupScreen() {
        <Animatable.Text animation="zoomIn" delay={600} style={styles.subtitle}>Find your perfect room nearby</Animatable.Text>
 
       <TextInput
-        placeholder="Full Name"
-        value={username}
-        onChangeText={setUsername}
-        style={styles.input}
-      />
-
-      <TextInput
         placeholder="Email Address"
         value={email}
         onChangeText={setEmail}
@@ -37,15 +96,13 @@ export default function SignupScreen() {
         keyboardType="email-address"
       />
 
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
+        <TextInput placeholder="First Name" style={styles.input}  value={firstname} onChangeText={setFirstname} />
+        <TextInput placeholder="Last Name" style={styles.input}  value={lastname} onChangeText={setLastname} />
+        <TextInput placeholder="Password" style={styles.input} secureTextEntry value={password} onChangeText={setPassword} />
+        <TextInput placeholder="Confirm Password" style={styles.input} secureTextEntry value={confirmPass} onChangeText={setConformPass} />
 
-      <TouchableOpacity style={styles.button} onPress={() => router.replace('./tabs/home')}>
+
+      <TouchableOpacity style={styles.button} onPress={handleSignUp} >
         <Text style={styles.buttonText} >Sign Up</Text>
       </TouchableOpacity>
 

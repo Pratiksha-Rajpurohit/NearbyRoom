@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet ,Image} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet ,Image , Alert} from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Animatable from 'react-native-animatable';
+import apiServices from '../components/apiServices';
 
 
 export default function Login() {
@@ -9,6 +10,33 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
+    const registerUser = async () => {
+      const loginCredentials = {
+        username: email,
+        firstname: '',
+        lastname: '',
+        password: password,
+        confirmpass: '',
+      };
+    
+      try {
+        const response = await apiServices.loginUser(loginCredentials);
+        console.log('login User data:', response.data);
+        Alert.alert('Success', 'User login successfully!');
+        return true;
+      } catch (error) {
+        console.error('Error posting user data:', error);
+        Alert.alert('Error', 'Failed to login . Try again.');
+        return false;
+      }
+    };
+    
+    const handleLogin = async () => {
+      const isValidAndRegistered = await registerUser();
+      if (isValidAndRegistered) {
+        router.replace('./tabs/home'); // Navigate only if registration succeeded
+      }
+    };
 
   return (
     <View style={styles.container}>
@@ -48,7 +76,7 @@ export default function Login() {
      
 
       
-        <TouchableOpacity style={styles.button} onPress={() => router.replace('./tabs/home')}>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
      
