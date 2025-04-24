@@ -18,18 +18,26 @@ export default function Login() {
         password: password,
         confirmpass: '',
       };
+
+      if (!email ||  !password ) {
+            Alert.alert('Error', 'All fields are required!');
+            return false;
+      
+      }else{
     
-      try {
-        const response = await apiServices.loginUser(loginCredentials);
-        console.log('login User data:', response.data);
-        Alert.alert('Success', 'User login successfully!');
-        return true;
-      } catch (error) {
-        console.error('Error posting user data:', error);
-        Alert.alert('Error', 'Failed to login . Try again.');
-        return false;
-      }
+            try {
+              const response = await apiServices.loginUser(loginCredentials);
+              console.log('login User data:', response.data);
+              Alert.alert('Success', 'User login successfully!');
+              return true;
+            } catch (error) {
+              console.error('Error posting user data:', error);
+              Alert.alert('Error', 'Failed to login . Try again.');
+              return false;
+            }
+    }
     };
+
     
     const handleLogin = async () => {
       const isValidAndRegistered = await registerUser();
