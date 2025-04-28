@@ -1,101 +1,172 @@
 import React from "react";
-import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import Colors from "./Colors";
 import { View, Text, Image, StyleSheet, Dimensions, ScrollView,TouchableOpacity } from 'react-native';
+import apiServices from "./apiServices";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect , useState } from "react";
+
 
 const windowWidth = Dimensions.get('window').width;
 
-const user = {
-  username: "amantambe",
-  firstname: "Aman",
-  lastname: "Tambe",
-  country: "India",
-  livesIn: "jalna",
-  worksAt: "nearbyrooms",
-  relationship: "single",
-  followers: ["6797514a38c8b3a056feb87c", "6797b211fd0018fce47ca72f"],
-  following: ["6797514a38c8b3a056feb87c"],
-  profilePicture: "../assets/images/profile_pic_bg.jpg",
-  coverPicture: "https://yourdomain.com/images/17379821869272acc8a69869094939664891dcf00c2e2.jpg"
-};
+
 export default function Middle() {
+  const [id, setId] = useState('');
+  const [userData, setUserData] = useState({});
+  const [imageUri, setImageUri] = useState('');
 
-    const [imageUri, setImageUri] = useState(user.profilePicture);
+  // Get userId from AsyncStorage
+  useEffect(() => {
+    const getUserId = async () => {
+      const userId = await AsyncStorage.getItem('userId');
+      setId(userId);
+      console.log("User Id P : ", userId);
+    };
 
-const pickImage = async () => {
-  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (status !== 'granted') {
-    Alert.alert('Permission required', 'We need permission to access your gallery.');
-    return;
-  }
+    getUserId();
+  }, []);
 
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: true,
-    aspect: [1, 1],
-    quality: 1,
-  });
+  // Fetch user data once the ID is available
+  useEffect(() => {
+    if (!id) return;
+    
+    const getUserProfileData = async () => {
+      try {
+        const response = await apiServices.getUserDataById(id);
+        setUserData(response.data);
+        console.log('Profile User data:', response);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        Alert.alert('Error', 'Failed to Fetch Profile Data. Try again.');
+      }
+    };
 
-  if (!result.canceled && result.assets.length > 0) {
-    const selectedImage = result.assets[0].uri;
-    setImageUri(selectedImage);
-    // Here you can also upload to backend or Firebase
-    console.log('New profile pic URI:', selectedImage);
-  }
-};
+    getUserProfileData();
+  }, [id , imageUri]);
 
+  // Update profile on image change
+  useEffect(() => {
+
+    if (!userData || !imageUri || !id) return;
+    
+
+    const updateProfile = async () => {
+
+        try {
+             const token = await AsyncStorage.getItem("token"); // Get token asynchronously
+  
+            const config = {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            };
+    
+
+          const updatedData = {
+          
+              username: userData.username,
+              password: "123",
+              phoneNumber: "9876543210",
+              email: userData.email,
+              authMethod: "local", // or "google"
+              emailVerified: false,
+              firstname: "abc",
+              lastname: "def",
+              isAdmin: false,
+              profilePicture: imageUri ,
+              coverPicture: "coverpic_url",
+              about: "I am a software developer.",
+              livesIn: "Mumbai",
+              worksAt: "Tech Company",
+              relationship: "Single",
+              country: "India",
+              followers: [],
+              following: []
+        
+          };
+
+          apiServices.updateUserData(id, updatedData , config)
+            .then(response => {
+              console.log("Profile updated successfully", response.data);
+            })
+            .catch(error => {
+              console.error("Error updating profile", error);
+            });
+
+        } catch (error) {
+            console.error("Update Failed:", error.response ? error.response.data : error.message);
+        }
+    }
+
+    updateProfile();
+    
+  }, [userData, imageUri, id]); // Only trigger when imageUri changes
+
+  // Pick image from gallery
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'We need permission to access your gallery.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      const selectedImage = result.assets[0].uri;
+      setImageUri(selectedImage);
+      console.log('New profile pic URI:', selectedImage);
+    }
+  };
+
+  // Render user profile information
   return (
     <ScrollView style={styles.container}>
-    <View style={styles.main}>
-        
-      <View style={styles.imageContainer}>
-      <TouchableOpacity onPress={pickImage}>
-        
+      <View style={styles.main}>
+        <View style={styles.imageContainer}>
+          <TouchableOpacity onPress={pickImage}>
             <Image
-            style={styles.image}
-            source={
-              imageUri === ""
-                ? require("../assets/images/profile_pic_bg.jpg")
-                : { uri: imageUri }
-            }
-          />
-        
-        </TouchableOpacity>
+              style={styles.image}
+              source={
+                imageUri 
+                    ? { uri: imageUri } // if user selected new image
+                    : userData.profilePicture 
+                      ? { uri: userData.profilePicture } // if profile pic exists from server
+                      : require("../assets/images/profile_pic_bg.jpg") // fallback default image
+              }
+            />
+          </TouchableOpacity>
 
-
-            <View style={styles.profileSection}>
-              <Text style={styles.name}>{user.firstname} {user.lastname}</Text>
-              <Text style={styles.username}>@{user.username}</Text>
-              <Text style={styles.work}>Works at {user.worksAt}</Text>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoText}>Lives in {user.livesIn}</Text>
-                <Text style={styles.dot}>•</Text>
-                <Text style={styles.infoText}>{user.relationship}</Text>
-                <Text style={styles.dot}>•</Text>
-                <Text style={styles.infoText}>{user.country}</Text>
-              </View>
-              {/* <View style={styles.followStats}>
-                <Text style={styles.stat}>{user.followers.length} Followers</Text>
-                <Text style={styles.stat}>{user.following.length} Following</Text>
-              </View> */}
+          <View style={styles.profileSection}>
+            <Text style={styles.name}>{userData.firstname || "Name"} {userData.lastname || ""}</Text>
+            <Text style={styles.username}>{userData.username || "Username"}</Text>
+            <Text style={styles.work}>Works at {userData.worksAt || "Nearby Rooms"}</Text>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoText}>Lives in {userData.livesIn || "Jalna"}</Text>
+              <Text style={styles.dot}>•</Text>
+              <Text style={styles.infoText}>{userData.relationship || "Single"}</Text>
+              <Text style={styles.dot}>•</Text>
+              <Text style={styles.infoText}>{userData.country || "India"}</Text>
             </View>
-
-            </View>
-          
-
-      <View style={styles.middleSectionTextContainer}>
-        <View style={styles.middleSectionText}>
-          <Text style={styles.toptext}>Follower</Text>
-          <Text style={styles.bottomtext}>28</Text>
+          </View>
         </View>
-        <View style={styles.middleSectionText}>
-          <Text style={styles.toptext}>Following</Text>
-          <Text style={styles.bottomtext}>73</Text>
+
+        <View style={styles.middleSectionTextContainer}>
+          <View style={styles.middleSectionText}>
+            <Text style={styles.toptext}>Followers</Text>
+            <Text style={styles.bottomtext}>{userData.followers?.length || 0}</Text>
+          </View>
+          <View style={styles.middleSectionText}>
+            <Text style={styles.toptext}>Following</Text>
+            <Text style={styles.bottomtext}>{userData.following?.length || 0}</Text>
+          </View>
         </View>
-        
       </View>
-    </View>
     </ScrollView>
   );
 }

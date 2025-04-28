@@ -4,11 +4,16 @@ import Middle from "../../components/profileBottom";
 
 
 
+
 const profile = () => {
+
+
+  
   return (
     
       <ImageBackground source={require("../../assets/images/bg_container.png")} style={styles.bgImage}>
         <View style={styles.container}>
+
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <ProfileTop />
             <Middle />

@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet ,Image , Alert} fro
 import { useRouter } from 'expo-router';
 import * as Animatable from 'react-native-animatable';
 import apiServices from '../components/apiServices';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function Login() {
@@ -27,8 +28,12 @@ export default function Login() {
     
             try {
               const response = await apiServices.loginUser(loginCredentials);
-              console.log('login User data:', response.data);
-              Alert.alert('Success', 'User login successfully!');
+              console.log('login User data:',  response);
+              // After successful login API call
+              console.log(" log su")
+              Alert.alert('Success', 'User login successfully!')
+              await AsyncStorage.setItem('userId', response.data.user._id);
+              await AsyncStorage.setItem('token', response.data.token); 
               return true;
             } catch (error) {
               console.error('Error posting user data:', error);
@@ -42,7 +47,10 @@ export default function Login() {
     const handleLogin = async () => {
       const isValidAndRegistered = await registerUser();
       if (isValidAndRegistered) {
-        router.replace('./tabs/home'); // Navigate only if registration succeeded
+        router.replace( { // Navigate only if registration succeeded
+        pathname : '/tabs/home',
+        params : { name: 'John', age: 25 }
+      })
       }
     };
 
