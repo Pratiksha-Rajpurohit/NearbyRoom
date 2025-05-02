@@ -5,15 +5,19 @@ import { View, Text, Image, StyleSheet, Dimensions, ScrollView,TouchableOpacity 
 import apiServices from "./apiServices";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect , useState } from "react";
+import { useIsFocused } from '@react-navigation/native';
 
 
 const windowWidth = Dimensions.get('window').width;
 
 
-export default function Middle() {
+export default function Middle({ sendUserData }) {
   const [id, setId] = useState('');
   const [userData, setUserData] = useState({});
   const [imageUri, setImageUri] = useState('');
+  const isFocused = useIsFocused();
+
+ 
 
   // Get userId from AsyncStorage
   useEffect(() => {
@@ -24,7 +28,9 @@ export default function Middle() {
     };
 
     getUserId();
-  }, []);
+
+
+  }, [isFocused]);
 
   // Fetch user data once the ID is available
   useEffect(() => {
@@ -32,17 +38,28 @@ export default function Middle() {
     
     const getUserProfileData = async () => {
       try {
+        
         const response = await apiServices.getUserDataById(id);
         setUserData(response.data);
-        console.log('Profile User data:', response);
+        // Optionally set imageUri if it's not already set
+        if (!imageUri && response.data.profilePicture) {
+          setImageUri(response.data.profilePicture);
+          console.log("Profile picture loaded from server:", response.data.profilePicture);
+        }
+        
       } catch (error) {
         console.error('Error fetching user data:', error);
         Alert.alert('Error', 'Failed to Fetch Profile Data. Try again.');
       }
     };
 
+    
+
     getUserProfileData();
-  }, [id , imageUri]);
+
+    console.log("imageUri",imageUri)
+   
+  }, [id , imageUri , isFocused ]);
 
   // Update profile on image change
   useEffect(() => {
@@ -65,29 +82,31 @@ export default function Middle() {
           const updatedData = {
           
               username: userData.username,
-              password: "123",
-              phoneNumber: "9876543210",
+              password: userData.password || "123",
+              phoneNumber: userData.phoneNumber || " ",
               email: userData.email,
-              authMethod: "local", // or "google"
-              emailVerified: false,
-              firstname: "abc",
-              lastname: "def",
-              isAdmin: false,
-              profilePicture: imageUri ,
-              coverPicture: "coverpic_url",
-              about: "I am a software developer.",
-              livesIn: "Mumbai",
-              worksAt: "Tech Company",
-              relationship: "Single",
-              country: "India",
+              authMethod: userData.authMethod|| "local", // or "google"
+              emailVerified: userData.emailVerified ||false,
+              firstname: userData.firstname || "abc",
+              lastname: userData.lastname || "def",
+              isAdmin: userData.isAdmin || false,
+              profilePicture: imageUri || userData.profilePicture ,
+              coverPicture: userData.coverPicture || "coverpic_url",
+              about: userData.about || "I am a software developer.",
+              livesIn: userData.livesIn || "Mumbai",
+              worksAt: userData.worksAt || "Tech Company",
+              relationship: userData.relationship || "Single",
+              country: userData.country || "India",
               followers: [],
               following: []
         
           };
 
+          
+
           apiServices.updateUserData(id, updatedData , config)
             .then(response => {
-              console.log("Profile updated successfully", response.data);
+              // console.log("Profile updated successfully", response.data);
             })
             .catch(error => {
               console.error("Error updating profile", error);
@@ -99,6 +118,8 @@ export default function Middle() {
     }
 
     updateProfile();
+
+   
     
   }, [userData, imageUri, id]); // Only trigger when imageUri changes
 
@@ -124,6 +145,11 @@ export default function Middle() {
     }
   };
 
+  useEffect(() => {
+    // Send data when component mounts (or based on some trigger)
+    sendUserData(userData);
+  }, [userData]);
+
   // Render user profile information
   return (
     <ScrollView style={styles.container}>
@@ -133,10 +159,10 @@ export default function Middle() {
             <Image
               style={styles.image}
               source={
-                imageUri 
+                imageUri
                     ? { uri: imageUri } // if user selected new image
-                    : userData.profilePicture 
-                      ? { uri: userData.profilePicture } // if profile pic exists from server
+                    // : userData.profilePicture?.startsWith('http') || userData.profilePicture?.startsWith('file:')
+                    //   ? { uri: userData.profilePicture } // if profile pic exists from server
                       : require("../assets/images/profile_pic_bg.jpg") // fallback default image
               }
             />

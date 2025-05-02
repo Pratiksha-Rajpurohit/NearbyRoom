@@ -8,6 +8,7 @@ const Colors = {
     white: "#ffff",
     alt: "rgba(0, 0, 0, 0)",
     white_gray:'rgba(251, 250, 250, 0.84)',
+    NearByRoom_logoC:'rgb(113, 130, 198)',
   };
 
 

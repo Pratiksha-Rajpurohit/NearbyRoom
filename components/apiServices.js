@@ -1,4 +1,6 @@
 import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const apiClient = axios.create({
     baseURL: 'https://api.nearbyrooms.in',
@@ -28,11 +30,25 @@ export const updateUserData = (id , updatedData , config) => {
     return apiClient.put(`/user/${id}` , updatedData ,  config);
 }
 
+
+export const logoutUser = async () => {
+  try {
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('userId');
+    return true;
+  } catch (error) {
+    console.error('Error logging out:', error);
+    return false;
+  }
+};
+
+
 export default {
     getUserData,
     postUserData,
     loginUser,
     getUserDataById,
-    updateUserData
+    updateUserData,
+    loginUser
   };
   

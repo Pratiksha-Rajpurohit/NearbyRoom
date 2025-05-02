@@ -4,8 +4,9 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
+
 const TabBar = ({ state, descriptors, navigation }) => {
-    const primaryColor = '#0891b2';
+    const primaryColor = 'rgb(113, 130, 198)';
     const greyColor = '#737373';
 
     const icon = {
