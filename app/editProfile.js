@@ -1,5 +1,5 @@
 import React, { useState , useEffect} from 'react';
-import {Text,View, TextInput, Button, StyleSheet , TouchableOpacity } from 'react-native';
+import {Text,View, TextInput, StyleSheet , TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiServices from '../components/apiServices';
@@ -11,31 +11,25 @@ const editProfile = () => {
   const {
     firstnameU,
     lastnameU,
-    usernameU,
+    emailU,
     worksAtU,
     livesInU,
     relationshipU,
     countryU,
-    profilePictureU,
     phoneNumberU,
     aboutU
   } = useLocalSearchParams();
 
   const [firstname, setFirstname] = useState(firstnameU || '');
   const [lastname, setLastname] = useState(lastnameU || '');
-  const [username, setUsername] = useState(usernameU || '');
+  const [email, setEmail] = useState(emailU || '');
   const [worksAt, setWorksAt] = useState(worksAtU || '');
   const [livesIn, setLivesIn] = useState(livesInU || '');
   const [relationship, setRelationship] = useState(relationshipU || '');
   const [country, setCountry] = useState(countryU || '');
-  const [phoneNumber, setPhoneNumber] = useState(phoneNumberU||'');
+  const [phoneNumber, setPhoneNumber] = useState(phoneNumberU|| '');
   const [about, setAbout] = useState(aboutU||'');
 
-   useEffect(() => {
-        // Send data when component mounts (or based on some trigger)
-        console.log('Received from ProfilePicU:', profilePictureU);
-  
-      }, [profilePictureU]);
 
   const updateProfileData = async () => {
     try {
@@ -49,24 +43,16 @@ const editProfile = () => {
       };
 
       const updatedData = {
-        username: username,
-        password: '123',
+        
         phoneNumber: phoneNumber,
-        email: username,
-        authMethod: 'local',
-        emailVerified: false,
+        email: email,
         firstname: firstname,
         lastname: lastname,
-        isAdmin: false,
-        profilePicture: profilePictureU,
-        coverPicture: 'coverpic_url',
         about: about,
         livesIn: livesIn,
         worksAt: worksAt,
         relationship: relationship,
         country: country,
-        followers: [],
-        following: [],
       };
 
       const response = await apiServices.updateUserData(userId, updatedData, config);

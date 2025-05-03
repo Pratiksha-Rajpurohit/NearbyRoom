@@ -24,18 +24,14 @@ export default function Profile() {
   const snapPoints = ['45%'];
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [worksAt, setWorksAt] = useState('');
   const [livesIn, setLivesIn] = useState('');
   const [relationship, setRelationship] = useState('');
   const [country, setCountry] = useState('');
-  const [profilePicture , setProfilePicture] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('');
   const [about, setAbout] = useState('');
 
-  // const handleSnapPress = useCallback((index: number) => {
-  //   sheetRef.current?.snapToIndex(index);
-  // }, []);
 
   const handleSnapPress = useCallback((index: number) => {
     setIsOpen(true);
@@ -44,16 +40,6 @@ export default function Profile() {
     }, 0);
   }, []);
 
-  // function editProfileRoute () {
-  //   router.push({
-  //     pathname: '/editProfile',
-  //     params: {
-  //       firstname: userData.firstname,
-  //       username: userData.username,
-  //       imageUri: imageUri,
-  //     }
-  //   });
-  // }
 
   const handleUserDataFromMiddle = (data: any) => {
       console.log('Received from child:', data);
@@ -63,28 +49,23 @@ export default function Profile() {
      setCountry(data.country);
      setLivesIn(data.livesIn);
      setWorksAt(data.worksAt)
-     setUsername(data.username);
+     setEmail(data.email);
      setRelationship(data.relationship);
-     setProfilePicture(data.profilePicture);
      setPhoneNumber(data.phoneNumber);
      setAbout(data.about);
      
 
-    //  console.log('Received from FirstName:', data.firstname);
-      // You can now update state or do anything with this data
+   
   };
 
-  useEffect(() => {
-      // Send data when component mounts (or based on some trigger)
-      console.log('Received from FirstNameUU:', profilePicture);
-
-    }, [profilePicture]);
   
-    const handleLogout =  () => {
+    const handleLogout =  async() => {
       
-      const success =  apiServices.loginUser(); 
-      // console.log("log OUt", success);
-        router.replace('/'); // Navigate to login screen
+      const success = await apiServices.logoutUser(); 
+      // console.log("logout", success);
+      if(success){
+        router.replace('/login'); // Navigate to login screen
+      }
       
     };
 
@@ -131,12 +112,11 @@ export default function Profile() {
                   params: {
                     firstnameU: firstname ,
                     lastnameU: lastname || '',
-                    usernameU: username || '',
+                    emailU: email || '',
                     worksAtU: worksAt || '',
                     livesInU: livesIn || '',
                     relationshipU: relationship || '',
                     countryU: country || '',
-                    profilePictureU: profilePicture || '',
                     phoneNumberU : phoneNumber || '',
                     aboutU : about || '',
 

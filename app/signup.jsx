@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } fro
 import { useRouter } from 'expo-router';
 import * as Animatable from 'react-native-animatable';
 import apiServices from '../components/apiServices';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function SignupScreen() {
@@ -60,6 +61,9 @@ export default function SignupScreen() {
       const response = await apiServices.postUserData(newUser);
       console.log('Post User data:', response.data);
       Alert.alert('Success', 'User registered successfully!');
+      console.log("tokenR : ",response.data.token);
+      await AsyncStorage.setItem('userId', response.data.user._id);
+      await AsyncStorage.setItem('token', response.data.token);
       return true;
     } catch (error) {
       console.error('Error posting user data:', error);

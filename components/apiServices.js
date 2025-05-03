@@ -49,6 +49,6 @@ export default {
     loginUser,
     getUserDataById,
     updateUserData,
-    loginUser
+    logoutUser
   };
   
