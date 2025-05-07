@@ -33,7 +33,7 @@ export default function Login() {
         Alert.alert('Success', 'User login successfully!')
         await AsyncStorage.setItem('userId', response.data.user._id);
         await AsyncStorage.setItem('token', response.data.token);
-        
+
         return true;
       } catch (error) {
         console.error('Error posting user data:', error);

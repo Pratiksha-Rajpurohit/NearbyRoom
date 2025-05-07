@@ -13,6 +13,7 @@ export const getUserData = () => {
   return apiClient.get('/user');
 };
 
+// Only required or updated fields need to be included in the API request body.
 export const postUserData = (newUser) => {
   return apiClient.post('/auth/register',newUser);
 };

@@ -17,7 +17,7 @@ import apiServices from '@/components/apiServices';
 import { useRouter } from 'expo-router';
 
 export default function Profile() {
-  const[userData , setUserData] = useState({})
+  const [userData, setUserData] = useState({})
   const router = useRouter();
   const sheetRef = useRef<BottomSheetMethods>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +31,7 @@ export default function Profile() {
   const [country, setCountry] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [about, setAbout] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
 
 
   const handleSnapPress = useCallback((index: number) => {
@@ -42,34 +43,33 @@ export default function Profile() {
 
 
   const handleUserDataFromMiddle = (data: any) => {
-      console.log('Received from child:', data);
-      setUserData(data);
-     setFirstname(data.firstname);
-     setLastname(data.lastname);
-     setCountry(data.country);
-     setLivesIn(data.livesIn);
-     setWorksAt(data.worksAt)
-     setEmail(data.email);
-     setRelationship(data.relationship);
-     setPhoneNumber(data.phoneNumber);
-     setAbout(data.about);
-     
+    console.log('Received from child:', data);
+    setUserData(data);
+    setFirstname(data.firstname);
+    setLastname(data.lastname);
+    setCountry(data.country);
+    setLivesIn(data.livesIn);
+    setWorksAt(data.worksAt)
+    setEmail(data.email);
+    setRelationship(data.relationship);
+    setPhoneNumber(data.phoneNumber);
+    setAbout(data.about);
+    setProfilePicture(data.profilePicture);
 
-   
   };
 
-  
-    const handleLogout =  async() => {
-      
-      const success = await apiServices.logoutUser(); 
-      // console.log("logout", success);
-      if(success){
-        router.replace('/login'); // Navigate to login screen
-      }
-      
-    };
 
-  
+  const handleLogout = async () => {
+
+    const success = await apiServices.logoutUser();
+    // console.log("logout", success);
+    if (success) {
+      router.replace('/login'); // Navigate to login screen
+    }
+
+  };
+
+
   return (
     <SafeAreaView style={styles.container_s}>
       <ImageBackground
@@ -83,7 +83,7 @@ export default function Profile() {
 
               <TouchableOpacity style={styles.setting} onPress={() => handleSnapPress(0)}>
                 <AntDesign name="setting" size={24} color="black" />
-                
+
               </TouchableOpacity>
             </View>
 
@@ -95,41 +95,42 @@ export default function Profile() {
 
       {/* BottomSheet is always mounted */}
       <BottomSheet
-       ref={sheetRef}
-       snapPoints={snapPoints}
-       index={-1}
-       enablePanDownToClose={true}
-       onClose={() => setIsOpen(false)}
+        ref={sheetRef}
+        snapPoints={snapPoints}
+        index={-1}
+        enablePanDownToClose={true}
+        onClose={() => setIsOpen(false)}
       >
         <BottomSheetView style={styles.sheetContent}>
           <Text style={styles.sheetTitle}>Setting</Text>
 
-          <TouchableOpacity style={styles.actionButton}  
-           onPressIn={() =>
-            {if (userData) {
+          <TouchableOpacity style={styles.actionButton}
+            onPressIn={() => {
+              if (userData) {
                 router.push({
                   pathname: '/editProfile',
                   params: {
-                    firstnameU: firstname ,
+                    firstnameU: firstname,
                     lastnameU: lastname || '',
                     emailU: email || '',
                     worksAtU: worksAt || '',
                     livesInU: livesIn || '',
                     relationshipU: relationship || '',
                     countryU: country || '',
-                    phoneNumberU : phoneNumber || '',
-                    aboutU : about || '',
+                    phoneNumberU: phoneNumber || '',
+                    aboutU: about || '',
+                    profilePictureU: profilePicture || ''
 
                   },
                 });
-            }else {
-              console.warn('User data not loaded yet');
+              } else {
+                console.warn('User data not loaded yet');
+              }
             }
-          }
-          }
-            >
+            }
+          >
             <Text style={styles.actionText}>✏️ Edit</Text>
-          
+
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton} onPress={() => handleLogout()}>

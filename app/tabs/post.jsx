@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 
 const post = () => {
   return (
-    <View style={{ flex:1, justifyContent:'center', alignItems:'center' }}>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Post Screen</Text>
     </View>
   );

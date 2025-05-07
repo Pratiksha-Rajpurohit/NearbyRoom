@@ -8,8 +8,6 @@ import { useEffect , useState } from "react";
 import { useIsFocused } from '@react-navigation/native';
 
 
-const windowWidth = Dimensions.get('window').width;
-
 
 export default function Middle({ sendUserData }) {
   const [id, setId] = useState('');
