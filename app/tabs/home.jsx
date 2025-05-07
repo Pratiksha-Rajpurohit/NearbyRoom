@@ -5,9 +5,9 @@ const home = () => {
 
 
   return (
-    <View style={{ flex:1, justifyContent:'center', alignItems:'center' }}>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Home Screen</Text>
-      
+
     </View>
   );
 }

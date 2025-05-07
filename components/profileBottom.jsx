@@ -1,12 +1,13 @@
 import React from "react";
-import * as ImagePicker from 'expo-image-picker';
 import Colors from "./Colors";
-import { View, Text, Image, StyleSheet, Dimensions, ScrollView,TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import apiServices from "./apiServices";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect , useState } from "react";
+import { useEffect, useState } from "react";
 import { useIsFocused } from '@react-navigation/native';
 
+
+const windowWidth = Dimensions.get('window').width;
 
 
 export default function Middle({ sendUserData }) {
@@ -14,6 +15,8 @@ export default function Middle({ sendUserData }) {
   const [userData, setUserData] = useState({});
   const [imageUri, setImageUri] = useState('');
   const isFocused = useIsFocused();
+  const [cloudinaryImageUrl , setcloudinaryImageUrl] = useState(''); 
+  const [picUplodedOnDB , setPicUploadedOnDB] = useState(false);
 
  
 
@@ -22,7 +25,7 @@ export default function Middle({ sendUserData }) {
     const getUserId = async () => {
       const userId = await AsyncStorage.getItem('userId');
       setId(userId);
-      console.log("User Id P : ", userId);
+      console.log("User Id PS : ", userId);
     };
 
     getUserId();
@@ -31,117 +34,36 @@ export default function Middle({ sendUserData }) {
   }, [isFocused]);
 
   // Fetch user data once the ID is available
+
   useEffect(() => {
-    if (!id) return;
-    
+    if (!id ) return;
+
     const getUserProfileData = async () => {
       try {
-        
+
         const response = await apiServices.getUserDataById(id);
         setUserData(response.data);
         // Optionally set imageUri if it's not already set
         if (!imageUri && response.data.profilePicture) {
-          setImageUri(response.data.profilePicture);
+          // setImageUri(response.data.profilePicture);
           console.log("Profile picture loaded from server:", response.data.profilePicture);
         }
-        
+
       } catch (error) {
         console.error('Error fetching user data:', error);
         Alert.alert('Error', 'Failed to Fetch Profile Data. Try again.');
       }
     };
 
-    
-
     getUserProfileData();
 
-    console.log("imageUri",imageUri)
-   
-  }, [id , imageUri , isFocused ]);
+    // console.log("imageUri", imageUri)
 
-  // Update profile on image change
-  useEffect(() => {
+  }, [id,  isFocused]);
 
-    if (!userData || !imageUri || !id) return;
-    
 
-    const updateProfile = async () => {
-
-        try {
-             const token = await AsyncStorage.getItem("token"); // Get token asynchronously
+ 
   
-            const config = {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            };
-    
-
-          const updatedData = {
-          
-              username: userData.username,
-              password: userData.password || "123",
-              phoneNumber: userData.phoneNumber || " ",
-              email: userData.email,
-              authMethod: userData.authMethod|| "local", // or "google"
-              emailVerified: userData.emailVerified ||false,
-              firstname: userData.firstname || "abc",
-              lastname: userData.lastname || "def",
-              isAdmin: userData.isAdmin || false,
-              profilePicture: imageUri || userData.profilePicture ,
-              coverPicture: userData.coverPicture || "coverpic_url",
-              about: userData.about || "I am a software developer.",
-              livesIn: userData.livesIn || "Mumbai",
-              worksAt: userData.worksAt || "Tech Company",
-              relationship: userData.relationship || "Single",
-              country: userData.country || "India",
-              followers: [],
-              following: []
-        
-          };
-
-          
-
-          apiServices.updateUserData(id, updatedData , config)
-            .then(response => {
-              // console.log("Profile updated successfully", response.data);
-            })
-            .catch(error => {
-              console.error("Error updating profile", error);
-            });
-
-        } catch (error) {
-            console.error("Update Failed:", error.response ? error.response.data : error.message);
-        }
-    }
-
-    updateProfile();
-
-   
-    
-  }, [userData, imageUri, id]); // Only trigger when imageUri changes
-
-  // Pick image from gallery
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'We need permission to access your gallery.');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled && result.assets.length > 0) {
-      const selectedImage = result.assets[0].uri;
-      setImageUri(selectedImage);
-      console.log('New profile pic URI:', selectedImage);
-    }
-  };
 
   useEffect(() => {
     // Send data when component mounts (or based on some trigger)
@@ -153,17 +75,18 @@ export default function Middle({ sendUserData }) {
     <ScrollView style={styles.container}>
       <View style={styles.main}>
         <View style={styles.imageContainer}>
-          <TouchableOpacity onPress={pickImage}>
-            <Image
-              style={styles.image}
-              source={
-                imageUri
-                    ? { uri: imageUri } // if user selected new image
-                    // : userData.profilePicture?.startsWith('http') || userData.profilePicture?.startsWith('file:')
-                    //   ? { uri: userData.profilePicture } // if profile pic exists from server
-                      : require("../assets/images/profile_pic_bg.jpg") // fallback default image
-              }
-            />
+          <TouchableOpacity >
+              <Image
+                  style={styles.image}
+                  source={
+                    // cloudinaryImageUrl
+                    //   ? { uri: cloudinaryImageUrl }
+                    
+                       userData.profilePicture
+                        ? { uri: userData.profilePicture }
+                        : require("../assets/images/profile_p.jpg")
+                  }
+                />
           </TouchableOpacity>
 
           <View style={styles.profileSection}>
@@ -223,7 +146,7 @@ const styles = StyleSheet.create({
   },
   toptext: {
     fontSize: 15,
-    color:  Colors.white,
+    color: Colors.white,
     fontWeight: "bold",
   },
   bottomtext: {
@@ -232,66 +155,66 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
-    container: {
-      flex: 1,
-      
-    },
-   
-    profileSection: {
-      alignItems: 'center',
-      marginTop: -60,
-      paddingHorizontal: 20,
-      marginTop:3,
-    },
-    profileImage: {
-      width: 120,
-      height: 120,
-      borderRadius: 60,
-      borderWidth: 4,
-      borderColor: '#fff',
-      marginBottom: 10,
-    },
-    name: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      color:'#fff',
-    },
-    username: {
-      fontSize: 14,
-      color: '#fff',
-      marginBottom: 4,
-    },
-    work: {
-      fontSize: 16,
-      color: '#fff',
-      marginBottom: 10,
-    },
-    infoRow: {
-      flexDirection: 'row',
-      gap: 4,
-      alignItems: 'center',
-      marginBottom: 10,
-      flexWrap: 'wrap',
-      justifyContent: 'center'
-    },
-    dot: {
-      marginHorizontal: 4,
-      color: '#999'
-    },
-    infoText: {
-      fontSize: 14,
-      color: '#fff',
-    },
-    followStats: {
-      flexDirection: 'row',
-      justifyContent: 'center',
-      gap: 20,
-      marginTop: 10,
-    },
-    stat: {
-      fontSize: 14,
-      fontWeight: 'bold',
-      color: '#fff',
-    }
-  
+  container: {
+    flex: 1,
+
+  },
+
+  profileSection: {
+    alignItems: 'center',
+    marginTop: -60,
+    paddingHorizontal: 20,
+    marginTop: 3,
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 4,
+    borderColor: '#fff',
+    marginBottom: 10,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  username: {
+    fontSize: 14,
+    color: '#fff',
+    marginBottom: 4,
+  },
+  work: {
+    fontSize: 16,
+    color: '#fff',
+    marginBottom: 10,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    gap: 4,
+    alignItems: 'center',
+    marginBottom: 10,
+    flexWrap: 'wrap',
+    justifyContent: 'center'
+  },
+  dot: {
+    marginHorizontal: 4,
+    color: '#999'
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#fff',
+  },
+  followStats: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 20,
+    marginTop: 10,
+  },
+  stat: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#fff',
+  }
+
 });

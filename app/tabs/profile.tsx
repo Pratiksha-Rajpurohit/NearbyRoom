@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState, useMemo, useEffect } from 'react';
+import  { useRef, useCallback, useState, useMemo, useEffect } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -10,10 +10,10 @@ import {
   Alert,
 } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import BottomSheet, { BottomSheetView, BottomSheetModal } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet'; 
 import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import Middle from '../../components/profileBottom';
-import apiServices from '@/components/apiServices';
+import apiServices from '../../components/apiServices';
 import { useRouter } from 'expo-router';
 
 export default function Profile() {
@@ -32,6 +32,9 @@ export default function Profile() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [about, setAbout] = useState('');
   const [profilePicture, setProfilePicture] = useState('');
+
+
+  
 
 
   const handleSnapPress = useCallback((index: number) => {
@@ -173,6 +176,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
-
-

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Text, View, TextInput, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiServices from '../components/apiServices';
@@ -31,16 +31,11 @@ const editProfile = () => {
   const [country, setCountry] = useState(countryU || '');
   const [phoneNumber, setPhoneNumber] = useState(phoneNumberU || '');
   const [about, setAbout] = useState(aboutU || '');
+  const [profilePic, setProfilePic] = useState(profilePictureU || '')
   const [imageUri, setImageUri] = useState('');
+  const [cloudinaryImageUrl , setcloudinaryImageUrl] = useState(profilePictureU ||''); 
+  const [picUplodedOnDB , setPicUploadedOnDB] = useState(false);
 
-
-  // useEffect(() => {
-  //   console.log("profilepic get");
-  //   if (profilePictureU) {
-  //     setImageUri(profilePictureU);
-  //     console.log("profilepic set")
-  //   }
-  // }, [profilePictureU]);
 
   const updateProfileData = async () => {
     try {
@@ -64,16 +59,57 @@ const editProfile = () => {
         worksAt: worksAt,
         relationship: relationship,
         country: country,
+        profilePicture : cloudinaryImageUrl 
         
       };
 
       const response = await apiServices.updateUserData(userId, updatedData, config);
-      console.log('Profile updated successfully:', response.data);
+      console.log('Profile updated successfully In Edit:', response.data);
       router.replace('./tabs/profile');
     } catch (error) {
       console.error('Update Failed:', error.response?.data || error.message);
     }
   };
+
+  // Update profile on image change in cloudinary
+
+  useEffect(() => {
+
+    if ( !imageUri ) return;
+
+    const uploadToCloudinary = async () => {
+      const data = new FormData();
+      data.append("file", {
+        uri: imageUri,
+        type: "image/jpeg", // use image/png if needed
+        name: "profile.jpg",
+      });
+      data.append("upload_preset", "nearbyrooms"); // your unsigned preset
+      data.append("cloud_name", "ddbjyo9wp");       // your cloud name
+  
+      try {
+        const res = await fetch("https://api.cloudinary.com/v1_1/ddbjyo9wp/image/upload", {
+          method: "POST",
+          body: data,
+        });
+  
+        const result = await res.json();
+        console.log(" Uploaded image:", result.secure_url);
+        setcloudinaryImageUrl(result.secure_url);
+        Alert.alert('Success', 'Image uploaded successfully!');
+  
+      } catch (error) {
+        console.error(" Upload error:", error);
+        Alert.alert("Upload failed", "Check console for details.");
+
+       
+      }
+    };
+
+    
+    uploadToCloudinary();
+
+  }, [ imageUri ]); // Only trigger when imageUri changes
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -92,7 +128,10 @@ const editProfile = () => {
     if (!result.canceled && result.assets.length > 0) {
       const selectedImage = result.assets[0].uri;
       setImageUri(selectedImage);
+      setProfilePic(selectedImage);
       console.log('New profile pic URI:', selectedImage);
+      Alert.alert('Uploading', 'Please wait while the image uploads. A success message will appear once it’s done.');
+
     }
   };
 
@@ -107,11 +146,11 @@ const editProfile = () => {
             <Image
               style={styles.image}
               source={
-                imageUri
-                  ? { uri: imageUri } // if user selected new image
+                profilePic
+                  ? { uri: profilePic } // if user selected new image
                   // : userData.profilePicture?.startsWith('http') || userData.profilePicture?.startsWith('file:')
                   //   ? { uri: userData.profilePicture } // if profile pic exists from server
-                  : require("../assets/images/profile_pic_bg.jpg") // fallback default image
+                  : require("../assets/images/profile_p.jpg") // fallback default image
               }
             />
           </TouchableOpacity>

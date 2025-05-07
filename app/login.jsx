@@ -28,11 +28,13 @@ export default function Login() {
 
       try {
         const response = await apiServices.loginUser(loginCredentials);
-        console.log('login User data:', response);
+        console.log('login User data:');
+        console.log('token', response.data.token)
         // After successful login API call
         Alert.alert('Success', 'User login successfully!')
         await AsyncStorage.setItem('userId', response.data.user._id);
         await AsyncStorage.setItem('token', response.data.token);
+        
 
         return true;
       } catch (error) {
