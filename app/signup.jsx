@@ -59,7 +59,7 @@ export default function SignupScreen() {
 
     try {
       const response = await apiServices.postUserData(newUser);
-      console.log('Post User data:', response.data);
+      // console.log('Post User data:', response.data);
       Alert.alert('Success', 'User registered successfully!');
       console.log("tokenR : ", response.data.token);
       await AsyncStorage.setItem('userId', response.data.user._id);
@@ -120,7 +120,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF6AF',
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -143,15 +143,12 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(113, 130, 198, 0.13)',
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
     fontSize: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
+
   },
   button: {
     backgroundColor: '#6079C5',

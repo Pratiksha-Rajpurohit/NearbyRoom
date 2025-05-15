@@ -3,10 +3,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const apiClient = axios.create({
-    baseURL: 'https://api.nearbyrooms.in',
-    headers: {
-        'Content-Type': 'application/json'
-      }
+  baseURL: 'https://api.nearbyrooms.in',
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
 export const getUserData = () => {
@@ -15,20 +15,20 @@ export const getUserData = () => {
 
 // Only required or updated fields need to be included in the API request body.
 export const postUserData = (newUser) => {
-  return apiClient.post('/auth/register',newUser);
+  return apiClient.post('/auth/register', newUser);
 };
 
 export const loginUser = (loginCredentials) => {
-    return apiClient.post('/auth/login', loginCredentials );
-  };
+  return apiClient.post('/auth/login', loginCredentials);
+};
 
 export const getUserDataById = (id) => {
-  
-    return apiClient.get(`/user/${id}`);
-  };
 
-export const updateUserData = (id , updatedData , config) => {
-    return apiClient.put(`/user/${id}` , updatedData ,  config);
+  return apiClient.get(`/user/${id}`);
+};
+
+export const updateUserData = (id, updatedData, config) => {
+  return apiClient.put(`/user/${id}`, updatedData, config);
 }
 
 
@@ -45,11 +45,10 @@ export const logoutUser = async () => {
 
 
 export default {
-    getUserData,
-    postUserData,
-    loginUser,
-    getUserDataById,
-    updateUserData,
-    logoutUser
-  };
-  
+  getUserData,
+  postUserData,
+  loginUser,
+  getUserDataById,
+  updateUserData,
+  logoutUser
+};

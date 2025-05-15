@@ -15,10 +15,10 @@ export default function Middle({ sendUserData }) {
   const [userData, setUserData] = useState({});
   const [imageUri, setImageUri] = useState('');
   const isFocused = useIsFocused();
-  const [cloudinaryImageUrl , setcloudinaryImageUrl] = useState(''); 
-  const [picUplodedOnDB , setPicUploadedOnDB] = useState(false);
+  const [cloudinaryImageUrl, setcloudinaryImageUrl] = useState('');
+  const [picUplodedOnDB, setPicUploadedOnDB] = useState(false);
 
- 
+
 
   // Get userId from AsyncStorage
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function Middle({ sendUserData }) {
   // Fetch user data once the ID is available
 
   useEffect(() => {
-    if (!id ) return;
+    if (!id) return;
 
     const getUserProfileData = async () => {
       try {
@@ -59,11 +59,11 @@ export default function Middle({ sendUserData }) {
 
     // console.log("imageUri", imageUri)
 
-  }, [id,  isFocused]);
+  }, [id, isFocused]);
 
 
- 
-  
+
+
 
   useEffect(() => {
     // Send data when component mounts (or based on some trigger)
@@ -75,26 +75,26 @@ export default function Middle({ sendUserData }) {
     <ScrollView style={styles.container}>
       <View style={styles.main}>
         <View style={styles.imageContainer}>
-          <TouchableOpacity >
-              <Image
-                  style={styles.image}
-                  source={
-                    // cloudinaryImageUrl
-                    //   ? { uri: cloudinaryImageUrl }
-                    
-                       userData.profilePicture
-                        ? { uri: userData.profilePicture }
-                        : require("../assets/images/profile_p.jpg")
-                  }
-                />
-          </TouchableOpacity>
+          
+            <Image
+              style={styles.image}
+              source={
+                // cloudinaryImageUrl
+                //   ? { uri: cloudinaryImageUrl }
+
+                userData.profilePicture
+                  ? { uri: userData.profilePicture }
+                  : require("../assets/images/profile_p.jpg")
+              }
+            />
+          
 
           <View style={styles.profileSection}>
             <Text style={styles.name}>{userData.firstname || "Name"} {userData.lastname || ""}</Text>
             <Text style={styles.username}>{userData.username || "Username"}</Text>
-            <Text style={styles.work}>Works at {userData.worksAt || "Nearby Rooms"}</Text>
+            <Text style={styles.work}>Works at {userData.worksAt || "_______"}</Text>
             <View style={styles.infoRow}>
-              <Text style={styles.infoText}>Lives in {userData.livesIn || "Jalna"}</Text>
+              <Text style={styles.infoText}>Lives in {userData.livesIn || "_______"}</Text>
               <Text style={styles.dot}>•</Text>
               <Text style={styles.infoText}>{userData.relationship || "Single"}</Text>
               <Text style={styles.dot}>•</Text>

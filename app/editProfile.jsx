@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, TextInput, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import { Text, View, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Image, Alert, ImageBackground } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiServices from '../components/apiServices';
@@ -8,6 +8,10 @@ import * as ImagePicker from 'expo-image-picker';
 
 const editProfile = () => {
   const router = useRouter();
+  const [imageUploading, setImageUploading] = useState(false);
+  const [shouldUploadImage, setShouldUploadImage] = useState(false);
+
+
 
   const {
     firstnameU,
@@ -33,11 +37,30 @@ const editProfile = () => {
   const [about, setAbout] = useState(aboutU || '');
   const [profilePic, setProfilePic] = useState(profilePictureU || '')
   const [imageUri, setImageUri] = useState('');
-  const [cloudinaryImageUrl , setcloudinaryImageUrl] = useState(profilePictureU ||''); 
-  const [picUplodedOnDB , setPicUploadedOnDB] = useState(false);
+  const [cloudinaryImageUrl, setcloudinaryImageUrl] = useState(profilePictureU || '');
+  const [picUplodedOnDB, setPicUploadedOnDB] = useState(false);
 
 
   const updateProfileData = async () => {
+
+    if (
+      !firstname.trim() ||
+      !lastname.trim() ||
+      !phoneNumber.trim() ||
+      !worksAt.trim() ||
+      !livesIn.trim() ||
+      !relationship.trim() ||
+      !country.trim()
+    ) {
+      Alert.alert("Missing Fields", "Please fill in all required fields.");
+      return;
+    }
+
+    if (phoneNumber.length < 10) {
+      Alert.alert("Invalid Phone Number", "Please enter a valid 10-digit phone number.");
+      return;
+    }
+
     try {
       const token = await AsyncStorage.getItem('token');
       const userId = await AsyncStorage.getItem('userId');
@@ -59,8 +82,8 @@ const editProfile = () => {
         worksAt: worksAt,
         relationship: relationship,
         country: country,
-        profilePicture : cloudinaryImageUrl 
-        
+        profilePicture: cloudinaryImageUrl
+
       };
 
       const response = await apiServices.updateUserData(userId, updatedData, config);
@@ -75,7 +98,10 @@ const editProfile = () => {
 
   useEffect(() => {
 
-    if ( !imageUri ) return;
+
+
+    if (!imageUri || !shouldUploadImage) return;
+    setImageUploading(true); // Start loader
 
     const uploadToCloudinary = async () => {
       const data = new FormData();
@@ -86,30 +112,33 @@ const editProfile = () => {
       });
       data.append("upload_preset", "nearbyrooms"); // your unsigned preset
       data.append("cloud_name", "ddbjyo9wp");       // your cloud name
-  
+
       try {
         const res = await fetch("https://api.cloudinary.com/v1_1/ddbjyo9wp/image/upload", {
           method: "POST",
           body: data,
         });
-  
+
         const result = await res.json();
         console.log(" Uploaded image:", result.secure_url);
         setcloudinaryImageUrl(result.secure_url);
         Alert.alert('Success', 'Image uploaded successfully!');
-  
+
       } catch (error) {
         console.error(" Upload error:", error);
         Alert.alert("Upload failed", "Check console for details.");
 
-       
+
+      } finally {
+        setImageUploading(false);
+        setShouldUploadImage(false); // 👈 reset so it doesn’t re-trigger
       }
     };
 
-    
+
     uploadToCloudinary();
 
-  }, [ imageUri ]); // Only trigger when imageUri changes
+  }, [imageUri, shouldUploadImage]); // Only trigger when imageUri changes
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -129,6 +158,7 @@ const editProfile = () => {
       const selectedImage = result.assets[0].uri;
       setImageUri(selectedImage);
       setProfilePic(selectedImage);
+      setShouldUploadImage(true);
       console.log('New profile pic URI:', selectedImage);
       Alert.alert('Uploading', 'Please wait while the image uploads. A success message will appear once it’s done.');
 
@@ -137,70 +167,88 @@ const editProfile = () => {
 
   return (
     <View style={styles.main}>
+      <ImageBackground
+        source={require('../assets/images/bd_e.png')}
+        style={styles.bgImage}
+      >
+
+        <View style={styles.profileSection}>
+          <View style={styles.imageContainer}>
+
+            <TouchableOpacity onPress={pickImage}>
+              <Image
+                style={styles.image}
+                source={
+                  profilePic
+                    ? { uri: profilePic } // if user selected new image
+                    // : userData.profilePicture?.startsWith('http') || userData.profilePicture?.startsWith('file:')
+                    //   ? { uri: userData.profilePicture } // if profile pic exists from server
+                    : require("../assets/images/profile_p.jpg") // fallback default image
+                }
+              />
+
+            </TouchableOpacity>
+            {imageUploading && (
+              <View style={styles.spinnerOverlay}>
+                <ActivityIndicator size="large" color="#fff" />
+              </View>
+            )}
+
+          </View>
+        </View>
 
 
-      <View style={styles.profileSection}>
-        <View style={styles.imageContainer}>
 
-          <TouchableOpacity onPress={pickImage}>
-            <Image
-              style={styles.image}
-              source={
-                profilePic
-                  ? { uri: profilePic } // if user selected new image
-                  // : userData.profilePicture?.startsWith('http') || userData.profilePicture?.startsWith('file:')
-                  //   ? { uri: userData.profilePicture } // if profile pic exists from server
-                  : require("../assets/images/profile_p.jpg") // fallback default image
-              }
-            />
+
+        <View style={styles.inputContainer}>
+
+          <View style={styles.inputRow}>
+            <Text style={styles.label}>First Name:</Text>
+            <TextInput style={styles.input} value={firstname} onChangeText={setFirstname} />
+          </View>
+
+          <View style={styles.inputRow}>
+            <Text style={styles.label}>Last Name:</Text>
+            <TextInput style={styles.input} value={lastname} onChangeText={setLastname} />
+          </View>
+
+          <View style={styles.inputRow}>
+            <Text style={styles.label}>Phone:</Text>
+            <TextInput style={styles.input} value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="numeric" />
+          </View>
+
+          <View style={styles.inputRow}>
+            <Text style={styles.label}>About:</Text>
+            <TextInput style={styles.input} value={about} onChangeText={setAbout} />
+          </View>
+
+          <View style={styles.inputRow}>
+            <Text style={styles.label}>Works At:</Text>
+            <TextInput style={styles.input} value={worksAt} onChangeText={setWorksAt} />
+          </View>
+
+          <View style={styles.inputRow}>
+            <Text style={styles.label}>Lives In:</Text>
+            <TextInput style={styles.input} value={livesIn} onChangeText={setLivesIn} />
+          </View>
+
+          <View style={styles.inputRow}>
+            <Text style={styles.label}>Relationship:</Text>
+            <TextInput style={styles.input} value={relationship} onChangeText={setRelationship} />
+          </View>
+
+          <View style={styles.inputRow}>
+            <Text style={styles.label}>Country:</Text>
+            <TextInput style={styles.input} value={country} onChangeText={setCountry} />
+          </View>
+
+
+          <TouchableOpacity style={styles.saveButton} onPress={updateProfileData}>
+            <Text style={styles.saveButtonText}>Save Profile</Text>
           </TouchableOpacity>
+
         </View>
-
-
-        <View style={styles.inputRow}>
-          <Text style={styles.label}>First Name:</Text>
-          <TextInput style={styles.input} value={firstname} onChangeText={setFirstname} />
-        </View>
-
-        <View style={styles.inputRow}>
-          <Text style={styles.label}>Last Name:</Text>
-          <TextInput style={styles.input} value={lastname} onChangeText={setLastname} />
-        </View>
-
-        <View style={styles.inputRow}>
-          <Text style={styles.label}>Phone:</Text>
-          <TextInput style={styles.input} value={phoneNumber} onChangeText={setPhoneNumber} keyboardType="numeric" />
-        </View>
-
-        <View style={styles.inputRow}>
-          <Text style={styles.label}>About:</Text>
-          <TextInput style={styles.input} value={about} onChangeText={setAbout} />
-        </View>
-
-        <View style={styles.inputRow}>
-          <Text style={styles.label}>Works At:</Text>
-          <TextInput style={styles.input} value={worksAt} onChangeText={setWorksAt} />
-        </View>
-
-        <View style={styles.inputRow}>
-          <Text style={styles.label}>Lives In:</Text>
-          <TextInput style={styles.input} value={livesIn} onChangeText={setLivesIn} />
-        </View>
-
-        <View style={styles.inputRow}>
-          <Text style={styles.label}>Relationship:</Text>
-          <TextInput style={styles.input} value={relationship} onChangeText={setRelationship} />
-        </View>
-
-        <View style={styles.inputRow}>
-          <Text style={styles.label}>Country:</Text>
-          <TextInput style={styles.input} value={country} onChangeText={setCountry} />
-        </View>
-      </View>
-
-      <TouchableOpacity style={styles.saveButton} onPress={updateProfileData}>
-        <Text style={styles.saveButtonText}>Save Profile</Text>
-      </TouchableOpacity>
+      </ImageBackground>
     </View>
   );
 };
@@ -211,11 +259,21 @@ const editProfile = () => {
 const styles = StyleSheet.create({
   main: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 16,
+    backgroundColor: "#fff"
   },
+  spinnerOverlay: {
+    position: 'absolute',
+    top: '35%',
+    left: '42%',
+    borderRadius: 50,
+    padding: 10,
+
+  },
+
+  bgImage: { flex: 1, resizeMode: 'cover' },
+
   imageContainer: {
-    marginTop:30,
+    marginTop: 30,
     alignItems: 'center',
     marginBottom: 20,
   },
@@ -224,12 +282,18 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 50,
     borderColor: Colors.alt,
+
     marginBottom: 5,
     backgroundColor: Colors.white,
     borderWidth: 4,
   },
   profileSection: {
     marginBottom: 20,
+    marginTop: 50,
+  },
+  inputContainer: {
+
+    paddingHorizontal: 15
   },
   inputRow: {
     flexDirection: 'row',
@@ -250,6 +314,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 8,
     fontSize: 16,
+    backgroundColor: 'rgba(113, 130, 198, 0.13)'
   },
   saveButton: {
     backgroundColor: Colors.NearByRoom_logoC, // A nice green color

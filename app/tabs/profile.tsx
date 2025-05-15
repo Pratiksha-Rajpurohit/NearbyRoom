@@ -1,4 +1,4 @@
-import  { useRef, useCallback, useState, useMemo, useEffect } from 'react';
+import { useRef, useCallback, useState, useMemo, useEffect } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -10,18 +10,21 @@ import {
   Alert,
 } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet'; 
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import Middle from '../../components/profileBottom';
 import apiServices from '../../components/apiServices';
 import { useRouter } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
 
 export default function Profile() {
   const [userData, setUserData] = useState({})
   const router = useRouter();
   const sheetRef = useRef<BottomSheetMethods>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const snapPoints = ['45%'];
+  const snapPoints = ['41%'];
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
@@ -34,7 +37,7 @@ export default function Profile() {
   const [profilePicture, setProfilePicture] = useState('');
 
 
-  
+
 
 
   const handleSnapPress = useCallback((index: number) => {
@@ -46,7 +49,7 @@ export default function Profile() {
 
 
   const handleUserDataFromMiddle = (data: any) => {
-    console.log('Received from child:', data);
+    // console.log('Received from child:', data);
     setUserData(data);
     setFirstname(data.firstname);
     setLastname(data.lastname);
@@ -76,7 +79,7 @@ export default function Profile() {
   return (
     <SafeAreaView style={styles.container_s}>
       <ImageBackground
-        source={require('../../assets/images/bg_container.png')}
+        source={require('../../assets/images/bg_p3.png')}
         style={styles.bgImage}
       >
         <View style={styles.container}>
@@ -96,7 +99,6 @@ export default function Profile() {
         </View>
       </ImageBackground>
 
-      {/* BottomSheet is always mounted */}
       <BottomSheet
         ref={sheetRef}
         snapPoints={snapPoints}
@@ -105,7 +107,9 @@ export default function Profile() {
         onClose={() => setIsOpen(false)}
       >
         <BottomSheetView style={styles.sheetContent}>
-          <Text style={styles.sheetTitle}>Setting</Text>
+          <View style={styles.sheetContainer}>
+            <Text style={styles.sheetTitle}>Setting</Text>
+          </View>
 
           <TouchableOpacity style={styles.actionButton}
             onPressIn={() => {
@@ -132,12 +136,17 @@ export default function Profile() {
             }
             }
           >
-            <Text style={styles.actionText}>✏️ Edit</Text>
-
+            <View style={styles.editAction}>
+              <FontAwesome name="edit" size={24} color="rgb(113, 130, 198)" />
+              <Text style={styles.actionText}> Edit</Text>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton} onPress={() => handleLogout()}>
-            <Text style={styles.actionText}>🚪 Sign Out</Text>
+            <View style={styles.editAction}>
+              <MaterialCommunityIcons name="logout" size={25} color="rgb(113, 130, 198)" />
+              <Text style={styles.actionText}> Sign Out</Text>
+            </View>
           </TouchableOpacity>
         </BottomSheetView>
       </BottomSheet>
@@ -164,15 +173,32 @@ const styles = StyleSheet.create({
   sheetContent: {
     padding: 20,
   },
+  sheetContainer: {
+    backgroundColor: 'rgb(113, 130, 198)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 30,
+  },
   sheetTitle: {
-    fontSize: 18,
+
+    fontSize: 19,
     fontWeight: 'bold',
-    marginBottom: 10,
+    color: '#fff',
+
+  },
+  editAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+
   },
   actionButton: {
-    paddingVertical: 12,
+
+    marginTop: 15
   },
   actionText: {
-    fontSize: 16,
+
+    color: 'rgb(113, 130, 198)',
+    fontSize: 17,
   },
 });

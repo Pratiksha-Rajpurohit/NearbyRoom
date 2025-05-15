@@ -19,17 +19,19 @@ export default function SplashScreen() {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
-      <Image
-        source={require('../assets/images/nearbyroomlogo.png')}
-        style={{ width: 150, height: 150, marginBottom: 20 }}
-        resizeMode="contain"
-      />
+
       <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#2C3E50', marginBottom: 5 }}>
         Welcome to
       </Text>
-      <Text style={{ fontSize: 32, fontWeight: 'bold', color: 'rgb(113, 130, 198)', marginBottom: 15 }}>
+      <Image
+        source={require('../assets/images/roomapp_lg.png')}
+        style={{ width: 200, height: 170, marginBottom: 20 }}
+        resizeMode="contain"
+      />
+
+      {/* <Text style={{ fontSize: 32, fontWeight: 'bold', color: 'rgb(113, 130, 198)', marginBottom: 15 }}>
         NearbyRooms
-      </Text>
+      </Text> */}
       <Text style={{ fontSize: 16, color: '#7F8C8D', marginBottom: 20 }}>
         Find your perfect place nearby, instantly.
       </Text>

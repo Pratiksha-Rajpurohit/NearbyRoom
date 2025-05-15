@@ -28,13 +28,13 @@ export default function Login() {
 
       try {
         const response = await apiServices.loginUser(loginCredentials);
-        console.log('login User data:');
+        // console.log('login User data:');
         console.log('token', response.data.token)
         // After successful login API call
         Alert.alert('Success', 'User login successfully!')
         await AsyncStorage.setItem('userId', response.data.user._id);
         await AsyncStorage.setItem('token', response.data.token);
-        
+
 
         return true;
       } catch (error) {
@@ -116,7 +116,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF6AF',
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -139,15 +139,12 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(113, 130, 198, 0.13)',
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
     fontSize: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
+
   },
   button: {
     backgroundColor: '#6079C5',
