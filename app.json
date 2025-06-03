@@ -9,9 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pratiksha.nearbyroom"
     },
     "android": {
+      "package": "com.pratiksha.nearbyroom",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -32,14 +34,21 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
     },
-
     "router": {
       "origin": "file"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "880508e6-8b7a-49f9-98e8-0be2539b5160"
+      }
+    },
+    "owner": "rprati"
   }
 }

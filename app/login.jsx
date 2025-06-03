@@ -1,14 +1,42 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View, Text, TextInput, TouchableOpacity,
+  StyleSheet, Image, Alert, Button
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Animatable from 'react-native-animatable';
-import apiServices, { loginUser } from '../components/apiServices';
+import apiServices from '../components/apiServices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import * as AuthSession from 'expo-auth-session';
 
 
-export default function Login() {
+
+// import auth from '@react-native-firebase/auth';
+// import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
+// GoogleSignin.configure({
+//    expoClientId: "243459918396-jt1bvrrpdmindk0nmv4g1borlqoi7m28.apps.googleusercontent.com",
+//   //   iosClientId: "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",
+//     androidClientId: "243459918396-l0rqlpgs8i2ko9m1jl84jg4m7kqr0591.apps.googleusercontent.com",
+//   //   webClientId: "243459918396-jt1bvrrpdmindk0nmv4g1borlqoi7m28.apps.googleusercontent.com",
+//   //   redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
+//   webClientId: "243459918396-jt1bvrrpdmindk0nmv4g1borlqoi7m28.apps.googleusercontent.com",
+// });   
+
+// GoogleSignin.configure({
+//   webClientId:
+//     "<YOUR_GOOGLE_CLIENT_ID>",
+//   scopes: ["profile", "email"],
+// });
+
+export default function LoginScreen() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(''); 
+  // .......................................................................................
+
+
+   // .......................................................................................
   const router = useRouter();
 
   const loginUser = async () => {
@@ -23,36 +51,28 @@ export default function Login() {
     if (!email || !password) {
       Alert.alert('Error', 'All fields are required!');
       return false;
+    }
 
-    } else {
-
-      try {
-        const response = await apiServices.loginUser(loginCredentials);
-        // console.log('login User data:');
-        console.log('token', response.data.token)
-        // After successful login API call
-        Alert.alert('Success', 'User login successfully!')
-        await AsyncStorage.setItem('userId', response.data.user._id);
-        await AsyncStorage.setItem('token', response.data.token);
-
-
-        return true;
-      } catch (error) {
-        console.error('Error posting user data:', error);
-        Alert.alert('Error', 'Failed to login . Try again.');
-        return false;
-      }
+    try {
+      const response = await apiServices.loginUser(loginCredentials);
+      Alert.alert('Success', 'User login successfully!');
+      await AsyncStorage.setItem('userId', response.data.user._id);
+      await AsyncStorage.setItem('token', response.data.token);
+      return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Failed to login. Try again.');
+      return false;
     }
   };
 
 
-  const handleLogin = async () => {
-    const isValidAndRegistered = await loginUser();
-    if (isValidAndRegistered) {
-      router.replace({ // Navigate only if registration succeeded
-        pathname: '/tabs/home',
+  // .......................................................................................
 
-      })
+  const handleLogin = async () => {
+    const isLoggedIn = await loginUser();
+    if (isLoggedIn) {
+      router.replace('/tabs/home');
     }
   };
 
@@ -73,7 +93,6 @@ export default function Login() {
         Your perfect space is just a few taps away
       </Animatable.Text>
 
-
       <TextInput
         placeholder="Email Address"
         value={email}
@@ -81,8 +100,6 @@ export default function Login() {
         style={styles.input}
         keyboardType="email-address"
       />
-
-
 
       <TextInput
         placeholder="Password"
@@ -92,23 +109,31 @@ export default function Login() {
         secureTextEntry
       />
 
-
-
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
 
-
-
-      <TouchableOpacity>
-        <Text
-          style={styles.link}
-          onPress={() => router.replace('./signup')}
-        >
+      <TouchableOpacity onPress={() => router.replace('./signup')}>
+        <Text style={styles.link}>
           Don't have an account? Sign up
         </Text>
       </TouchableOpacity>
 
+      <Text style={{ fontSize: 18, marginVertical: 20 }}>OR</Text>
+
+       <TouchableOpacity style={styles.button} onPress={() => router.replace("./phoneAuth")}>
+        <View style={styles.editAction}>
+        <FontAwesome name="phone" size={24} color="white" />
+        <Text style={styles.buttonText}>Sign in with Phone</Text>
+        </View>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.replace("./test")}>
+        
+        <Text style={styles.buttonText}>google signin</Text>
+        
+      </TouchableOpacity>
+    
     </View>
   );
 }
@@ -130,7 +155,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#6079C5',
-    marginBottom: 10
+    marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
@@ -144,7 +169,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 15,
     fontSize: 16,
-
   },
   button: {
     backgroundColor: '#6079C5',
@@ -159,14 +183,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  editAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap : 8,
+
+  },
   link: {
     color: '#6079C5',
     marginTop: 15,
     fontSize: 14,
-
   },
-  inputContainer: {
-    width: 320,
-
-  }
 });

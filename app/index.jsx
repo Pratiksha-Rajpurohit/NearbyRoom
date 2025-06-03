@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 
+
 export default function SplashScreen() {
   const router = useRouter();
 
@@ -11,7 +12,7 @@ export default function SplashScreen() {
       const token = await AsyncStorage.getItem('token');
       console.log("token : ", token);
       setTimeout(() => {
-        router.replace(token ? '/tabs/home' : '/login');
+        router.replace(token ? '/tabs/home' : './signup');
       }, 1500); // Delay for effect
     };
     checkLogin();

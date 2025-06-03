@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "243459918396",
+    "project_id": "nearbyroom",
+    "storage_bucket": "nearbyroom.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:243459918396:android:a4bf2f3dc5f457fa9c1139",
+        "android_client_info": {
+          "package_name": "com.pratiksha.nearbyroom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "243459918396-49tl2soopjopjkk221mbnliqktbng256.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pratiksha.nearbyroom",
+            "certificate_hash": "4b670c356364b220a05de19b9a1589b5a646a877"
+          }
+        },
+        {
+          "client_id": "243459918396-jt1bvrrpdmindk0nmv4g1borlqoi7m28.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWwe-24zmaQ2CQkJh2usf-UnASiIYEGs8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "243459918396-jt1bvrrpdmindk0nmv4g1borlqoi7m28.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

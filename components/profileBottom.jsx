@@ -120,7 +120,7 @@ export default function Middle({ sendUserData }) {
 
 const styles = StyleSheet.create({
   main: {
-    marginTop: 30,
+    marginTop: 50,
   },
   imageContainer: {
     justifyContent: "center",

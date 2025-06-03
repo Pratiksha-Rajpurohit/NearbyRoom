@@ -70,7 +70,7 @@ export default function Profile() {
     const success = await apiServices.logoutUser();
     // console.log("logout", success);
     if (success) {
-      router.replace('/login'); // Navigate to login screen
+      router.replace('../login'); // Navigate to login screen
     }
 
   };
